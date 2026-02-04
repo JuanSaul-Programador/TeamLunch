@@ -1,16 +1,14 @@
-# 🗳️ TeamLunch
+# TeamLunch
 > **Decisiones en equipo, democráticas y en tiempo real.**
 
 **TeamLunch** es una plataforma moderna de votación diseñada para simplificar la toma de decisiones grupales. Aunque nació para resolver el eterno debate de *"¿Qué comemos?"*, su arquitectura flexible permite decidir sobre **cualquier tema**:
 
-*   🎬 ¿Qué película ver hoy?
-*   🚀 ¿Nombre para el próximo Sprint/Proyecto?
-*   🎮 ¿A qué jugamos el viernes?
-*   🍕 Y sí... ¿Qué pedimos de comer?
+*   ¿Qué película ver hoy?
+*   ¿Nombre para el próximo Sprint/Proyecto?
+*   ¿A qué jugamos el viernes?
+*    Y sí... ¿Qué pedimos de comer?
 
 Construida con lo último del ecosistema **.NET**, ofrece una experiencia de usuario fluida, instantánea y visualmente atractiva.
-
-![Preview](https://via.placeholder.com/800x400?text=App+Preview+Dashboard)
 
 ## ✨ Características Destacadas
 
@@ -21,7 +19,7 @@ Construida con lo último del ecosistema **.NET**, ofrece una experiencia de usu
 
 ### 💬 Sala de Chat Multimedia
 *   **Comunicación Integrada:** Discute las opciones sin salir de la votación.
-*   **Soporte de Audio:** 🎙️ Envía notas de voz nativas desde el navegador.
+*   **Soporte de Audio:** Envía notas de voz nativas desde el navegador.
 *   **Imágenes via URL:** Comparte menús, pósters de películas o memes.
 *   **Indicadores de Escritura:** Feedback visual cuando alguien está escribiendo ("Juan está escribiendo...").
 
@@ -41,7 +39,7 @@ Este proyecto demuestra una arquitectura moderna y escalable utilizando 100% .NE
 *   **UI/UX:** [MudBlazor](https://mudblazor.com/) (Material Design Components)
 *   **Audio/Storage:** JavaScript Interop
 
-## 🚀 Cómo Empezar
+## Cómo Empezar
 
 1.  **Clonar el repositorio**
     ```bash
@@ -58,6 +56,3 @@ Este proyecto demuestra una arquitectura moderna y escalable utilizando 100% .NE
 3.  **Abrir en el navegador**
     Ingresa a `https://localhost:7148` (o el puerto indicado) y ¡crea tu primera sala!
 
-## 📄 Licencia
-
-Distribuido bajo la licencia MIT. Siéntete libre de usarlo para tus propios equipos.
