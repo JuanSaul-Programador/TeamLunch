@@ -1,0 +1,229 @@
+﻿@page "/app"
+@page "/join/{JoinCode}"
+@using Microsoft.AspNetCore.SignalR.Client
+@using TeamLunch.Shared.Models
+
+@if (currentState == AppState.Welcome)
+{
+    <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 80vh;">
+        <MudCard Elevation="0" Outlined="true" Class="pa-8 w-100" Style="border-radius: 16px;">
+            <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-2" Color="Color.Primary">TeamLunch</MudText>
+            <MudText Typo="Typo.caption" Align="Align.Center" Class="mb-8 d-block text-muted">Toma decisiones en equipo, rápido.</MudText>
+
+            <MudTextField @bind-Value="userName" Label="Tu Nombre" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4" />
+            
+            <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true">
+                <MudTabPanel Text="Unirse">
+                    <MudTextField @bind-Value="roomCodeInput" Label="Código de Sala" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4"/>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="JoinRoom" Disabled="@(string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(roomCodeInput))">
+                        Entrar
+                    </MudButton>
+                </MudTabPanel>
+                <MudTabPanel Text="Crear">
+                    <MudTextField @bind-Value="topicInput" Label="Tema (Ej: ¿Qué comemos?)" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4"/>
+                    <div class="mb-4">
+                        <MudText Typo="Typo.caption" Class="mb-2">Temporizador: @(timerInput == 0 ? "Sin límite" : $"{timerInput} segundos")</MudText>
+                        <MudSlider @bind-Value="timerInput" Min="0" Max="300" Step="30" Color="Color.Secondary"/>
+                    </div>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth="true" OnClick="CreateRoom" Disabled="@(string.IsNullOrWhiteSpace(userName))">
+                        Crear Sala
+                    </MudButton>
+                </MudTabPanel>
+            </MudTabs>
+        </MudCard>
+    </MudContainer>
+}
+else if (currentState == AppState.Lobby)
+{
+    <div class="d-flex justify-space-between align-center mb-6 flex-wrap gap-4">
+        <div>
+            <MudText Typo="Typo.h4"><b>@roomState.Topic</b></MudText>
+            <div class="d-flex align-center gap-2 mt-1">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">CÓDIGO: <b style="letter-spacing: 2px;">@roomState.RoomCode</b></MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" Size="Size.Small" OnClick="CopyCodeToClipboard" Title="Copiar código"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Link" Size="Size.Small" OnClick="CopyLinkToClipboard" Title="Copiar enlace"/>
+                <MudIconButton Icon="@Icons.Material.Filled.QrCode" Size="Size.Small" OnClick="@(() => showQR = !showQR)" Title="Ver QR"/>
+            </div>
+        </div>
+        @if (isCreator)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.StopCircle" OnClick="StopVoting" Class="border-solid border-2" Style="border-width: 2px; font-weight: bold;">Finalizar Votación</MudButton>
+        }
+    </div>
+
+    @if (showQR)
+    {
+        <MudPaper Class="pa-4 mb-4 text-center mx-auto" Elevation="0" Outlined="true" Style="border-radius: 12px; max-width: 300px;">
+            <MudText Typo="Typo.body2" Class="mb-2">Escanea para unirte:</MudText>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=@(Uri.EscapeDataString(GetJoinUrl()))" alt="QR Code" style="border-radius: 8px;"/>
+            <MudText Typo="Typo.caption" Class="mt-2 d-block text-truncate">@GetJoinUrl()</MudText>
+        </MudPaper>
+    }
+
+    @if (countdownSeconds > 0)
+    {
+        <MudAlert Severity="Severity.Warning" Class="mb-6 elevation-1" Icon="@Icons.Material.Filled.Timer" Style="border-radius: 8px;">
+            <div class="d-flex align-center gap-2">
+                <MudText Typo="Typo.body1"><b>Tiempo restante:</b></MudText>
+                <MudChip T="string" Color="Color.Error" Size="Size.Medium" Text="@($"{countdownSeconds} s")" Label="true"/>
+            </div>
+        </MudAlert>
+    }
+
+    <MudGrid Spacing="4">
+        <MudItem xs="12" md="8">
+            <MudPaper Class="pa-4 mb-4" Elevation="0" Outlined="true" Style="border-radius: 12px; background-color: var(--mud-palette-surface);">
+                 @if (!roomState.Options.Any())
+                {
+                    <div class="d-flex flex-column align-center justify-center py-8">
+                        <MudIcon Icon="@Icons.Material.Filled.PostAdd" Size="Size.Large" Class="mb-2" Color="Color.Default"/>
+                        <MudText>No hay opciones aún. ¡Sé el primero en proponer!</MudText>
+                    </div>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h6" Class="mb-4">Opciones de Voto</MudText>
+                }
+
+                @if (roomState.IsVotingActive)
+                {
+                    <div class="d-flex gap-2">
+                        <MudTextField @bind-Value="newOptionName" Placeholder="Escribe una opción (ej: Pizza, Sushi)..." Variant="Variant.Outlined" Margin="Margin.Dense" Class="flex-grow-1" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Fastfood"/>
+                        <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick="AddOption" Disabled="@string.IsNullOrWhiteSpace(newOptionName)" StartIcon="@Icons.Material.Filled.Add">Agregar</MudButton>
+                    </div>
+                }
+            </MudPaper>
+
+            <MudGrid>
+                @{
+                    var maxVotes = roomState.Options.Any() ? Math.Max(1, roomState.Options.Max(o => o.Votes)) : 1;
+                    var totalVotes = roomState.Options.Sum(o => o.Votes);
+                }
+                @foreach (var option in roomState.Options.OrderByDescending(o => o.Votes))
+                {
+                    var percentage = maxVotes > 0 ? (option.Votes * 100.0 / maxVotes) : 0;
+                    var hasVoted = option.Voters.Contains(userName);
+                    var isLeading = roomState.Options.Any() && option.Votes == maxVotes && option.Votes > 0;
+                    
+                    <MudItem xs="12" sm="6" lg="4">
+                        <MudPaper Elevation="@(isLeading ? 4 : 0)" Outlined="@(!isLeading)" 
+                                  Class="pa-5 d-flex flex-column gap-3 transition-all" 
+                                  Style="@($"border-radius: 16px; position: relative; overflow: hidden; {(isLeading ? "background: linear-gradient(135deg, #7c4dff15, #5e35b115); border: 2px solid #7c4dff;" : "")}")">
+                            @if (isLeading)
+                            {
+                                <MudChip T="string" Color="Color.Primary" Size="Size.Small" Text="Líder" Style="position: absolute; top: 12px; right: 12px; font-weight: bold;"/>
+                            }
+                            <div style="position: absolute; bottom: 0; left: 0; width: @(percentage)%; height: 6px; background: linear-gradient(90deg, #7c4dff, #b388ff); transition: width 0.5s ease; border-radius: 0 4px 0 0;"></div>
+                            
+                            <div class="d-flex justify-space-between align-center mt-1">
+                                <MudText Typo="Typo.h6" Style="font-weight: 700; max-width: 70%;" Class="text-truncate">@option.Name</MudText>
+                                <div class="d-flex align-column align-end">
+                                    <MudText Typo="Typo.h4" Color="Color.Primary" Style="font-weight: 900; line-height: 1;">@option.Votes</MudText>
+                                </div>
+                            </div>
+                            
+                             <MudProgressLinear Value="@percentage" Color="@(isLeading ? Color.Primary : Color.Default)" Rounded="true" Size="Size.Small" Class="my-1"/>
+
+                            @if (hasVoted)
+                            {
+                                <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" OnClick="@(() => Unvote(option.Name))" Disabled="@(!roomState.IsVotingActive)" FullWidth="true" StartIcon="@Icons.Material.Filled.Close">
+                                    Quitar mi voto
+                                </MudButton>
+                            }
+                            else
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => Vote(option.Name))" Disabled="@(!roomState.IsVotingActive)" FullWidth="true" StartIcon="@Icons.Material.Filled.ThumbUp">
+                                    Votar
+                                </MudButton>
+                            }
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudItem>
+        
+        <MudItem xs="12" md="4">
+            <MudPaper Elevation="0" Outlined="true" Class="d-flex flex-column" Style="height: 600px; border-radius: 12px;">
+                <div class="pa-3 border-b d-flex gap-2 overflow-x-auto">
+                    @foreach (var user in roomState.Users)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">@user</MudChip>
+                    }
+                </div>
+                <div class="flex-grow-1 pa-4 overflow-y-auto d-flex flex-column gap-2" id="chatArea">
+                    @foreach (var msg in roomState.Messages)
+                    {
+                        <div class="@(msg.UserName == userName ? "align-self-end" : "align-self-start")" style="max-width: 80%;">
+                            <MudText Typo="Typo.caption" Class="ml-1">@msg.UserName</MudText>
+                            <MudPaper Class="pa-2 px-3" Elevation="0" Style="@(msg.UserName == userName ? "background-color: var(--mud-palette-primary-hover); color: var(--mud-palette-primary-text); border-radius: 12px 12px 0 12px;" : "background-color: var(--mud-palette-surface); border: 1px solid var(--mud-palette-lines-default); border-radius: 12px 12px 12px 0;")">
+                                @switch (msg.Type)
+                                {
+                                    case MessageType.Image:
+                                        <img src="@msg.Message" alt="Imagen" style="max-width: 200px; border-radius: 8px; cursor: pointer;" @onclick="@(() => OpenImage(msg.Message))"/>
+                                        break;
+                                    case MessageType.Audio:
+                                        <audio controls src="@msg.Message" style="max-width: 200px;"></audio>
+                                        break;
+                                    default:
+                                        <MudText Typo="Typo.body2">@msg.Message</MudText>
+                                        break;
+                                }
+                            </MudPaper>
+                        </div>
+                    }
+                </div>
+                
+                @if (roomState.TypingUsers.Any(u => u != userName))
+                {
+                    <div class="px-4 py-1">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="d-flex align-center gap-1">
+                             <MudIcon Icon="@Icons.Material.Filled.MoreHoriz" Size="Size.Small" Class="mud-ripple mud-ripple-pulse"/>
+                             @string.Join(", ", roomState.TypingUsers.Where(u => u != userName)) está escribiendo...
+                        </MudText>
+                    </div>
+                }
+
+                <div class="pa-3 border-t d-flex gap-1 align-center">
+                    <MudIconButton Icon="@Icons.Material.Filled.Image" Size="Size.Small" Color="Color.Secondary" OnClick="@(() => showImageDialog = true)"/>
+                    
+                    <MudIconButton Icon="@(isRecording ? Icons.Material.Filled.Stop : Icons.Material.Filled.Mic)" 
+                                   Color="@(isRecording ? Color.Error : Color.Default)" 
+                                   OnClick="@(isRecording ? StopRecording : StartRecording)"
+                                   Size="Size.Small"/>
+                    
+                    <MudTextField @bind-Value="chatInput" Placeholder="@(isRecording ? "Grabando..." : "Escribe algo...")" Variant="Variant.Outlined" Margin="Margin.Dense" Class="flex-grow-1" @oninput="OnChatInput" @onkeyup="@(async (e) => { if (e.Key == "Enter") await SendMessage(); })" Disabled="@isRecording"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Send" Color="Color.Primary" OnClick="SendMessage" Disabled="@(string.IsNullOrWhiteSpace(chatInput) || isRecording)"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+else if (currentState == AppState.Results)
+{
+    <MudContainer MaxWidth="MaxWidth.Small" Class="mt-16 text-center">
+        <MudText Typo="Typo.h5" Class="mb-8">El ganador es..</MudText>
+        <MudText Typo="Typo.h1" Color="Color.Primary" Class="mb-4" Style="font-weight: 900;">@roomState.Winner</MudText>
+        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Style="font-size: 4rem;" Class="mb-8"/>
+
+        <div class="d-flex justify-center gap-4">
+            <MudButton Variant="Variant.Outlined" OnClick="ResetApp">Volver al Inicio</MudButton>
+        </div>
+    </MudContainer>
+}
+
+<MudDialog @bind-Visible="showImageDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Enviar Imagen</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="imageUrlInput" Label="URL de la imagen" Variant="Variant.Outlined" FullWidth="true" Placeholder="https://example.com/imagen.jpg"/>
+        @if (!string.IsNullOrWhiteSpace(imageUrlInput))
+        {
+            <img src="@imageUrlInput" alt="Preview" style="max-width: 100%; max-height: 200px; margin-top: 16px; border-radius: 8px;"/>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => showImageDialog = false)">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SendImageMessage" Disabled="@string.IsNullOrWhiteSpace(imageUrlInput)">Enviar</MudButton>
+    </DialogActions>
+</MudDialog>

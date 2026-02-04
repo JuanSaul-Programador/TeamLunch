@@ -1,0 +1,40 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="0" Style="@(_isDarkMode ? "" : "background: linear-gradient(135deg, #5e35b1 0%, #7c4dff 100%);")">
+        <MudIcon Icon="@Icons.Material.Filled.HowToVote" Class="mr-2"/>
+        <MudText Typo="Typo.h6" Style="font-weight: 700; letter-spacing: 1px;">TeamLunch</MudText>
+        <MudSpacer />
+        <MudToggleIconButton @bind-Toggled="@_isDarkMode"
+                             Icon="@Icons.Material.Filled.DarkMode" Color="Color.Inherit"
+                             ToggledIcon="@Icons.Material.Filled.LightMode" ToggledColor="Color.Warning"
+                             Title="Modo Oscuro" ToggledTitle="Modo Claro" />
+        <MudButton Variant="Variant.Text" Color="Color.Inherit" Href="/app" Class="mr-2">App</MudButton>
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/tu-usuario/TeamLunch" Target="_blank"/>
+    </MudAppBar>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _isDarkMode;
+    private MudTheme _theme = new();
+
+    protected override void OnInitialized()
+    {
+        _theme.PaletteLight.Primary = Colors.DeepPurple.Default;
+        _theme.PaletteLight.Secondary = Colors.Pink.Accent2;
+        _theme.PaletteLight.AppbarBackground = Colors.DeepPurple.Default;
+        
+        _theme.PaletteDark.Primary = Colors.DeepPurple.Lighten1;
+        _theme.PaletteDark.Secondary = Colors.Pink.Accent1;
+        _theme.PaletteDark.AppbarBackground = Colors.DeepPurple.Darken3; // Darker AppBar in dark mode
+        _theme.PaletteDark.Background = Colors.Gray.Darken4;
+        _theme.PaletteDark.Surface = Colors.Gray.Darken3;
+    }
+}

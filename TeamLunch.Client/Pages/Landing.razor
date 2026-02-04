@@ -1,0 +1,116 @@
+@page "/"
+@inject NavigationManager NavManager
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-16">
+    <MudGrid Justify="Justify.Center" Class="align-center">
+        <MudItem xs="12" md="6" Class="text-center">
+            <MudText Typo="Typo.h2" Color="Color.Primary" Style="font-weight: 900;">
+                TeamLunch
+            </MudText>
+            <MudText Typo="Typo.h5" Class="mt-2 mb-6" Color="Color.Default">
+                Toma decisiones en equipo. Sin drama.
+            </MudText>
+            <MudText Typo="Typo.body1" Class="mb-8" Style="opacity: 0.7;">
+                Crea una sala, invita a tu equipo, y voten juntos. Ideal para decidir qué comer, qué película ver, o cualquier cosa.
+            </MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="border-radius: 30px; padding: 16px 48px;" Href="/app">
+                Empezar Ahora
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider Class="my-16" />
+
+    <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8">¿Por qué TeamLunch?</MudText>
+    
+    <MudGrid Spacing="6" Justify="Justify.Center">
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Outlined="true" Class="pa-6 text-center" Style="border-radius: 16px; height: 100%;">
+                <MudIcon Icon="@Icons.Material.Filled.HowToVote" Color="Color.Primary" Style="font-size: 3rem;" Class="mb-4"/>
+                <MudText Typo="Typo.h6" Class="mb-2">Votación en Tiempo Real</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">Ve los votos actualizarse al instante. Sin refrescar.</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Outlined="true" Class="pa-6 text-center" Style="border-radius: 16px; height: 100%;">
+                <MudIcon Icon="@Icons.Material.Filled.Chat" Color="Color.Secondary" Style="font-size: 3rem;" Class="mb-4"/>
+                <MudText Typo="Typo.h6" Class="mb-2">Chat Integrado</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">Discute las opciones mientras votas.</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Outlined="true" Class="pa-6 text-center" Style="border-radius: 16px; height: 100%;">
+                <MudIcon Icon="@Icons.Material.Filled.Category" Color="Color.Tertiary" Style="font-size: 3rem;" Class="mb-4"/>
+                <MudText Typo="Typo.h6" Class="mb-2">Cualquier Tema</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">Películas, comida, nombres de proyecto... tú decides.</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider Class="my-16" />
+
+    <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8">Cómo Funciona</MudText>
+    
+    <MudTimeline TimelinePosition="TimelinePosition.Start">
+        <MudTimelineItem Color="Color.Primary" Size="Size.Medium">
+            <ItemContent>
+                <MudText Typo="Typo.h6">1. Crea una Sala</MudText>
+                <MudText Typo="Typo.body2">Pon tu nombre, elige un tema, y obtén un código único.</MudText>
+            </ItemContent>
+        </MudTimelineItem>
+        <MudTimelineItem Color="Color.Secondary" Size="Size.Medium">
+            <ItemContent>
+                <MudText Typo="Typo.h6">2. Comparte el Código</MudText>
+                <MudText Typo="Typo.body2">Envía el código a tu equipo. También puedes compartir un link o QR.</MudText>
+            </ItemContent>
+        </MudTimelineItem>
+        <MudTimelineItem Color="Color.Success" Size="Size.Medium">
+            <ItemContent>
+                <MudText Typo="Typo.h6">3. ¡Voten!</MudText>
+                <MudText Typo="Typo.body2">Agreguen opciones, discutan en el chat, y voten. El ganador se anuncia al final.</MudText>
+            </ItemContent>
+        </MudTimelineItem>
+    </MudTimeline>
+
+    <div class="text-center mt-16 mb-8">
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" Style="border-radius: 30px;" Href="/app">
+            Probar Gratis
+        </MudButton>
+    </div>
+</MudContainer>
+
+<MudPaper Elevation="0" Class="pa-12" Style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white;">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <MudGrid Spacing="6">
+            <MudItem xs="12" sm="4">
+                <div class="d-flex align-center gap-2 mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.HowToVote" Style="font-size: 2rem;"/>
+                    <MudText Typo="Typo.h5" Style="font-weight: 700;">TeamLunch</MudText>
+                </div>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">
+                    La forma más fácil de tomar decisiones en equipo. Sin discusiones, sin drama.
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudText Typo="Typo.subtitle1" Class="mb-4" Style="font-weight: 600;">Links</MudText>
+                <MudLink Href="/app" Color="Color.Inherit" Class="d-block mb-2" Style="opacity: 0.7;">Iniciar App</MudLink>
+                <MudLink Href="https://github.com/tu-usuario/TeamLunch" Target="_blank" Color="Color.Inherit" Class="d-block mb-2" Style="opacity: 0.7;">GitHub</MudLink>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudText Typo="Typo.subtitle1" Class="mb-4" Style="font-weight: 600;">Tecnologías</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;" Class="mb-2">Blazor WebAssembly</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;" Class="mb-2">SignalR (Tiempo Real)</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">MudBlazor UI</MudText>
+            </MudItem>
+        </MudGrid>
+        
+        <MudDivider Class="my-8" Style="border-color: rgba(255,255,255,0.1);"/>
+        
+        <div class="d-flex justify-space-between align-center flex-wrap gap-4">
+            <MudText Typo="Typo.body2" Style="opacity: 0.5;">© 2026 TeamLunch.</MudText>
+            <div class="d-flex gap-2">
+                <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Size="Size.Small" Href="https://github.com/tu-usuario/TeamLunch" Target="_blank" Style="opacity: 0.7;"/>
+            </div>
+        </div>
+    </MudContainer>
+</MudPaper>
